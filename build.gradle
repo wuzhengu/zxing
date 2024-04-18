@@ -1,0 +1,69 @@
+buildscript {
+
+    ext.repositories = {
+        mavenCentral()
+        google()
+        maven { url "https://jitpack.io" }
+    }
+
+    repositories rootProject.ext.repositories
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.1'
+    }
+}
+
+allprojects {
+    repositories rootProject.ext.repositories
+}
+
+def forkDir = "."
+
+def fork = [
+    android: [
+        manifest: new XmlParser().with {
+            it.parse("$forkDir/android/AndroidManifest.xml")
+        },
+        pom: new XmlParser().with {
+            it.parse("$forkDir/android/pom.xml")
+        },
+    ],
+]
+
+version fork.android.pom.version.text()
+println "[fork.android.pom] version $version"
+
+apply plugin: 'com.android.application'
+//apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion 22
+
+    sourceSets {
+        main {
+            manifest.srcFile "$forkDir/android/AndroidManifest.xml"
+            java.srcDirs += "$forkDir/android-core/src/main/java"
+            java.srcDirs += "$forkDir/android/src"
+            res.srcDirs += "$forkDir/android/res"
+            assets.srcDirs += "$forkDir/android/assets"
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
+}
+
+dependencies {
+    fork.android.pom.dependencies[0].each {
+        it = [
+            group: it.groupId.text(),
+            name: it.artifactId.text(),
+            version: it.version.text(),
+        ]
+        println "[fork.android.pom] dependency ${it.values().join(':')}"
+        if(it.version) implementation it
+    }
+}
