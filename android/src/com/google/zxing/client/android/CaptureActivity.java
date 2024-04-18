@@ -146,7 +146,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   @Override
   protected void onResume() {
     super.onResume();
-    
+
     // historyManager must be initialized here to update the history preference
     historyManager = new HistoryManager(this);
     historyManager.trimHistory();
@@ -219,7 +219,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             cameraManager.setManualCameraId(cameraId);
           }
         }
-        
+
         String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
         if (customPromptMessage != null) {
           statusView.setText(customPromptMessage);
@@ -284,7 +284,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       }
     }
   }
-  
+
   private static boolean isZXingURL(String dataString) {
     if (dataString == null) {
       return false;
@@ -362,25 +362,21 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   public boolean onOptionsItemSelected(MenuItem item) {
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.addFlags(Intents.FLAG_NEW_DOC);
-    switch (item.getItemId()) {
-      case R.id.menu_share:
-        intent.setClassName(this, ShareActivity.class.getName());
-        startActivity(intent);
-        break;
-      case R.id.menu_history:
-        intent.setClassName(this, HistoryActivity.class.getName());
-        startActivityForResult(intent, HISTORY_REQUEST_CODE);
-        break;
-      case R.id.menu_settings:
-        intent.setClassName(this, PreferencesActivity.class.getName());
-        startActivity(intent);
-        break;
-      case R.id.menu_help:
-        intent.setClassName(this, HelpActivity.class.getName());
-        startActivity(intent);
-        break;
-      default:
-        return super.onOptionsItemSelected(item);
+    int itemId = item.getItemId();
+    if(itemId == R.id.menu_share){
+      intent.setClassName(this, ShareActivity.class.getName());
+      startActivity(intent);
+    }else if(itemId == R.id.menu_history){
+      intent.setClassName(this, HistoryActivity.class.getName());
+      startActivityForResult(intent, HISTORY_REQUEST_CODE);
+    }else if(itemId == R.id.menu_settings){
+      intent.setClassName(this, PreferencesActivity.class.getName());
+      startActivity(intent);
+    }else if(itemId == R.id.menu_help){
+      intent.setClassName(this, HelpActivity.class.getName());
+      startActivity(intent);
+    }else{
+      return super.onOptionsItemSelected(item);
     }
     return true;
   }
@@ -516,10 +512,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   private static void drawLine(Canvas canvas, Paint paint, ResultPoint a, ResultPoint b, float scaleFactor) {
     if (a != null && b != null) {
-      canvas.drawLine(scaleFactor * a.getX(), 
-                      scaleFactor * a.getY(), 
-                      scaleFactor * b.getX(), 
-                      scaleFactor * b.getY(), 
+      canvas.drawLine(scaleFactor * a.getX(),
+                      scaleFactor * a.getY(),
+                      scaleFactor * b.getX(),
+                      scaleFactor * b.getY(),
                       paint);
     }
   }
@@ -680,11 +676,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         // Reformulate the URL which triggered us into a query, so that the request goes to the same
         // TLD as the scan URL.
         int end = sourceUrl.lastIndexOf("/scan");
-        String productReplyURL = sourceUrl.substring(0, end) + "?q=" + 
+        String productReplyURL = sourceUrl.substring(0, end) + "?q=" +
             resultHandler.getDisplayContents() + "&source=zxing";
         sendReplyMessage(R.id.launch_product_query, productReplyURL, resultDurationMS);
         break;
-        
+
       case ZXING_LINK:
         if (scanFromWebPageManager != null && scanFromWebPageManager.isScanFromWebPage()) {
           String linkReplyURL = scanFromWebPageManager.buildReplyURL(rawResult, resultHandler);
@@ -700,7 +696,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       ClipboardInterface.setText(resultHandler.getDisplayContents(), this);
     }
   }
-  
+
   private void sendReplyMessage(int id, Object arg, long delayMS) {
     if (handler != null) {
       Message message = Message.obtain(handler, id, arg);
